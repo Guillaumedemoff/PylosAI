@@ -48,7 +48,8 @@ def allMoves(state, turn):
                         move = json.dumps({
                             'move': 'move',
                             'from': [layer, row, column],
-                            'to': mv['to']
+                            'to': mv['to'],
+                            'cost': 0
                         })
                         moves.append(move)
     return moves
