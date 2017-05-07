@@ -14,7 +14,7 @@ from lib import game
 class PylosState(game.GameState):
     '''Class representing a state for the Pylos game.'''
     def __init__(self, initialstate=None):
-        
+
         if initialstate == None:
             # define a layer of the board
             def squareMatrix(size):
@@ -37,7 +37,7 @@ class PylosState(game.GameState):
 
     def get(self, layer, row, column):
         if layer < 0 or row < 0 or column < 0:
-            raise game.InvalidMoveException('The position ({}) is outside of the board'.format([layer, row, column]))         
+            raise game.InvalidMoveException('The position ({}) is outside of the board'.format([layer, row, column]))
         try:
             return self._state['visible']['board'][layer][row][column]
         except:
@@ -109,7 +109,7 @@ class PylosState(game.GameState):
         if sphere != player:
             raise game.InvalidMoveException('not your sphere')
         self._state['visible']['board'][layer][row][column] = None
-        
+
     # update the state with the move
     # raise game.InvalidMoveException
     def update(self, move, player):
@@ -126,7 +126,7 @@ class PylosState(game.GameState):
             try:
                 self.set(move['to'], player)
             except game.InvalidMoveException as e:
-                self.set(move['from'], player) 
+                self.set(move['from'], player)
                 raise e
         else:
             raise game.InvalidMoveException('Invalid Move:\n{}'.format(move))
@@ -168,20 +168,20 @@ class PylosState(game.GameState):
         for layer in range(4):
             self.printSquare(state['board'][layer])
             print()
-        
+
         for player, reserve in enumerate(state['reserve']):
             print('Reserve of {}:'.format(self.player2str(player)))
             print((self.val2str(player)+' ')*reserve)
             print()
-        
+
         print('{} to play !'.format(self.player2str(state['turn'])))
-        #print(json.dumps(self._state['visible'], indent=4))       
+        #print(json.dumps(self._state['visible'], indent=4))
 
 class PylosServer(game.GameServer):
     '''Class representing a server for the Pylos game.'''
     def __init__(self, verbose=False):
         super().__init__('Pylos', 2, PylosState(), verbose=verbose)
-    
+
     def applymove(self, move):
         try:
             self._state.update(json.loads(move), self.currentplayer)
@@ -194,10 +194,10 @@ class PylosClient(game.GameClient):
     def __init__(self, name, server, verbose=False):
         super().__init__(server, PylosState, verbose=verbose)
         self.__name = name
-    
+
     def _handle(self, message):
         pass
-    
+
     #return move as string
     def _nextmove(self, state):
         '''
@@ -223,7 +223,7 @@ class PylosClient(game.GameClient):
                 [1,1,2]
             ]
         }
-        
+
         return it in JSON
         '''
         for layer in range(4):
