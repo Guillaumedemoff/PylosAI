@@ -1,6 +1,6 @@
 import json
 import copy
-state = [[[0,1,0,1],[0,1,0,1],[0,1,None,None],[None,None,None,None]],[[None,None,None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
+state = [[[0,1,0,1],[0,1,0,1],[0,1,None,None],[None,None,None,None]],[[None,1,0],[None,None,1],[None,None,None]],[[None,None],[None,None]],[[None]]]
 def allPlace(state, layerRes = None):
     moves = []
     a = layerRes
@@ -25,14 +25,25 @@ def allPlace(state, layerRes = None):
                         moves.append(move)
     return moves
 
+
 def feelTheMagic(state, layer, row, column):
     feelTheMagic = False
     for i in range(2):
         for j in range(2):
             if layer != 0:
-                if state[layer-1][row+i][column+j] == None and layer != 0:
+                if state[layer-1][row+i][column+j] == None:
                     feelTheMagic = True
     return feelTheMagic
+
+
+def feelThePressure(state, layer, row, column):
+    feelThePressure = False
+    for i in range(2):
+        for j in range(2):
+            if layer < 3 and 0 <= row-i < 3-layer and 0 <= column-j < 3-layer:
+                if state[layer+1][row-i][column-j] != None:
+                    feelThePressure = True
+    return feelThePressure
 
 def allMoves(state, turn):
     moves = []
@@ -53,3 +64,17 @@ def allMoves(state, turn):
                         })
                         moves.append(move)
     return moves
+
+def allRemove(state, turn):
+    remove = []
+    for layer in range(3):
+        for row in range(4-layer):
+            for column in range(4-layer):
+                if (
+                    state[layer][row][column] == turn and
+                    not feelThePressure(state, layer, row, column)
+                ):
+                    remove.append([layer, row, column])
+    return remove
+
+print(allRemove(state,1))
