@@ -1,6 +1,8 @@
 import json
 import copy
-state = [[[0,1,0,1],[0,1,0,1],[0,1,None,None],[None,None,None,None]],[[None,1,0],[None,None,1],[None,None,None]],[[None,None],[None,None]],[[None]]]
+state = [[[1,1,0,1],[1,1,0,1],[0,1,None,None],[None,None,None,None]],[[None,1,0],[None,None,1],[None,None,None]],[[None,None],[None,None]],[[None]]]
+
+
 def allPlace(state, layerRes = None):
     moves = []
     a = layerRes
@@ -77,4 +79,12 @@ def allRemove(state, turn):
                     remove.append([layer, row, column])
     return remove
 
-print(allRemove(state,1))
+def checkSquare(state, layer, row, column, turn):
+    
+    for i in range(2):
+        for j in range(2):
+            if state[layer][row+i][column+j] != turn:
+                return False
+    return True
+
+print(checkSquare(state, 0, 0, 0, 1))              
