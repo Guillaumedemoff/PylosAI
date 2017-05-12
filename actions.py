@@ -76,5 +76,3 @@ def allRemove(state, turn):
                 ):
                     remove.append([layer, row, column])
     return remove
-
-print(allRemove(state,1))
