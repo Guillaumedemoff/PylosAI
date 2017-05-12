@@ -20,7 +20,7 @@ def allPlace(turn, layerRes = None):
                 #print('col: ', column)
                 if state[layer][row][column] == None:
 
-                    if not feelTheMagic(state, layer, row, column):
+                    if not feelTheMagic(layer, row, column):
                         move = {
                             'move': 'place',
                             'to': [layer, row, column],
@@ -31,12 +31,12 @@ def allPlace(turn, layerRes = None):
                             checkSquare(nextState, layer, row, column-1, turn) or
                             checkSquare(nextState, layer, row-1, column-1, turn) or
                             checkSquare(nextState, layer, row -1, column, turn)):
-                            remove(state, allRemove(state, turn), move)
+                            remove(allRemove(turn), move)
                         else:
                             moves.append(move)
 
 
-def feelTheMagic(state, layer, row, column):
+def feelTheMagic(layer, row, column):
 
     feelTheMagic = False
     for i in range(2):
@@ -48,7 +48,7 @@ def feelTheMagic(state, layer, row, column):
     return feelTheMagic
 
 
-def feelThePressure(state, layer, row, column):
+def feelThePressure(layer, row, column):
     feelThePressure = False
     for i in range(2):
         for j in range(2):
@@ -57,7 +57,7 @@ def feelThePressure(state, layer, row, column):
                     feelThePressure = True
     return feelThePressure
 
-def allMoves(state, turn):
+def allMoves(turn):
     for layer in range(3):
         for row in range(4-layer):
             for column in range(4-layer):
@@ -75,32 +75,39 @@ def allMoves(state, turn):
                         }
                         moves.append(move)
 
-def allRemove(state, turn):
+def allRemove(turn):
     remove = []
     for layer in range(3):
         for row in range(4-layer):
             for column in range(4-layer):
                 if (
                     state[layer][row][column] == turn and
-                    not feelThePressure(state, layer, row, column)
+                    not feelThePressure(layer, row, column)
                 ):
                     remove.append([layer, row, column])
     return remove
 
-def checkSquare(state, layer, row, column, turn):
+def checkSquare(status, layer, row, column, turn):
     for i in range(2):
         for j in range(2):
-            if state[layer][row+i][column+j] != turn:
-                return False
+                print(layer, row, column)
+                print(row+i, column+j)
+                if layer < 3 and 0 <= row-i < 3-layer and 0 <= column-j < 3-layer:
+                    if status[layer][row+i][column+j] != turn:
+                        return False
+                else:
+                    return False 
+    print(status)
     return True
 
-def remove(state, freeMarble, move):
+def remove(freeMarble, move):
     for i in range(len(freeMarble)):
         for j in range(i+1,len(freeMarble)):
             move['remove'] = [freeMarble[i],freeMarble[j]]
             moves.append(move)
     for rmv in freeMarble:
         move['remove'] = [rmv]
+        print(move)
         moves.append(move)
 
 
