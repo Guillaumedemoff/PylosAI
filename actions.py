@@ -1,10 +1,11 @@
 import json
 import copy
-state = [[[0, None, 0, 0],[None, 0, None, 0],[1,None,1,1],[None,1,None,1]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
+state = [[[0, 0, 0, 0],[None, 0, 0, 0],[1,0,1,1],[None,1,1,1]],[[None, 1, 1],[None,None,1],[None,None,None]],[[None,None],[None,None]],[[None]]]
 action = {'move': 'place', 'to':[0,2,1]}
 moves = []
 
-def allPlace(turn, layerRes = None):
+def allPlace(st, turn, layerRes = None):
+    mvs = []
     if layerRes == None:
         a = 0
         b = 4
@@ -18,96 +19,103 @@ def allPlace(turn, layerRes = None):
             #print('row: ', row)
             for column in range(4-layer):
                 #print('col: ', column)
-                if state[layer][row][column] == None:
-
-                    if not feelTheMagic(layer, row, column):
+                if st[layer][row][column] == None:
+                    if not feelTheMagic(st, layer, row, column):
                         move = {
                             'move': 'place',
                             'to': [layer, row, column],
                             'cost': -1
                         }
+                        mvs.append(move)
                         nextState = applyAction(move, turn)
                         if (checkSquare(nextState, layer, row, column, turn) or
                             checkSquare(nextState, layer, row, column-1, turn) or
                             checkSquare(nextState, layer, row-1, column-1, turn) or
                             checkSquare(nextState, layer, row -1, column, turn)):
-                            remove(allRemove(turn), move)
+                            remove(allRemove(st, turn), move)
                         else:
                             moves.append(move)
+    return mvs
 
-
-def feelTheMagic(layer, row, column):
+def feelTheMagic(st, layer, row, column):
 
     feelTheMagic = False
     for i in range(2):
         for j in range(2):
             if layer != 0:
-                if state[layer-1][row+i][column+j] == None:
+                if st[layer-1][row+i][column+j] == None:
                     feelTheMagic = True
 
     return feelTheMagic
 
 
-def feelThePressure(layer, row, column):
+def feelThePressure(st, layer, row, column):
     feelThePressure = False
     for i in range(2):
         for j in range(2):
             if layer < 3 and 0 <= row-i < 3-layer and 0 <= column-j < 3-layer:
-                if state[layer+1][row-i][column-j] != None:
+                if st[layer+1][row-i][column-j] != None:
                     feelThePressure = True
+
     return feelThePressure
 
 def allMoves(turn):
-    for layer in range(3):
-        for row in range(4-layer):
-            for column in range(4-layer):
-                if state[layer][row][column] == turn:
-                    st = copy.deepcopy(state)
-                    st[layer][row][column] = None
-                    mvs = allPlace(st, layer + 1)
-                    for mv in mvs:
-                        mv = json.loads(mv)
-                        move = {
-                            'move': 'move',
-                            'from': [layer, row, column],
-                            'to': mv['to'],
-                            'cost': 0
-                        }
-                        moves.append(move)
+    removes = allRemove(state, turn)
+    for rmv in removes:
+        layer = rmv[0]
+        row = rmv[1]
+        column = rmv[2]
+        st = copy.deepcopy(state)
+        st[layer][row][column] = None
+        mvs = allPlace(st, turn, layer + 1)
+        for mv in mvs:
+            move = {
+                'move': 'move',
+                'from': [layer, row, column],
+                'to': mv['to'],
+                'cost': 0
+            }
+            nextState = applyAction(move, turn)
 
-def allRemove(turn):
+            if (checkSquare(nextState, layer, row, column, turn) or
+                checkSquare(nextState, layer, row, column-1, turn) or
+                checkSquare(nextState, layer, row-1, column-1, turn) or
+                checkSquare(nextState, layer, row -1, column, turn)):
+                remove(allRemove(nextState, turn), move)
+            else:
+                moves.append(move)
+
+def allRemove(st, turn):
     remove = []
     for layer in range(3):
         for row in range(4-layer):
             for column in range(4-layer):
                 if (
                     state[layer][row][column] == turn and
-                    not feelThePressure(layer, row, column)
+                    not feelThePressure(st, layer, row, column)
                 ):
                     remove.append([layer, row, column])
     return remove
 
-def checkSquare(status, layer, row, column, turn):
+def checkSquare(st, layer, row, column, turn):
     for i in range(2):
         for j in range(2):
-                print(layer, row, column)
-                print(row+i, column+j)
                 if layer < 3 and 0 <= row-i < 3-layer and 0 <= column-j < 3-layer:
-                    if status[layer][row+i][column+j] != turn:
+                    if st[layer][row+i][column+j] != turn:
                         return False
                 else:
-                    return False 
-    print(status)
+                    return False
     return True
 
 def remove(freeMarble, move):
     for i in range(len(freeMarble)):
         for j in range(i+1,len(freeMarble)):
             move['remove'] = [freeMarble[i],freeMarble[j]]
+            print(move)
             moves.append(move)
     for rmv in freeMarble:
-        move['remove'] = [rmv]
         print(move)
+        move['remove'] = [rmv]
         moves.append(move)
 
 
@@ -117,11 +125,12 @@ def applyAction(action, turn):
         to =action['to']
         nextState[to[0]][to[1]][to[2]] = turn
     elif action['move'] == 'move':
-        to =action['to']
-        from_ = to =action['from']
+        to = action['to']
+        from_ =action['from']
         nextState[from_[0]][from_[1]][from_[2]] = None
         nextState[to[0]][to[1]][to[2]] = turn
+
     return nextState
 
-allPlace(1)
-#print(moves)
+#allPlace(state, 1)
+allMoves(1)
