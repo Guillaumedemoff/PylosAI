@@ -14,11 +14,8 @@ def allPlace(st, turn, layerRes = None):
         b = layerRes + 1
 
     for layer in range(a,b):
-        #print("layer: ", layer)
         for row in range(4-layer):
-            #print('row: ', row)
             for column in range(4-layer):
-                #print('col: ', column)
                 if st[layer][row][column] == None:
                     if not feelTheMagic(st, layer, row, column):
                         move = {
@@ -26,15 +23,19 @@ def allPlace(st, turn, layerRes = None):
                             'to': [layer, row, column],
                             'cost': -1
                         }
-                        mvs.append(move)
-                        nextState = applyAction(move, turn)
-                        if (checkSquare(nextState, layer, row, column, turn) or
-                            checkSquare(nextState, layer, row, column-1, turn) or
-                            checkSquare(nextState, layer, row-1, column-1, turn) or
-                            checkSquare(nextState, layer, row -1, column, turn)):
-                            remove(allRemove(st, turn), move)
+
+                        if layerRes == None:
+                            nextState = applyAction(move, turn)
+                            if (checkSquare(nextState, layer, row, column, turn) or
+                                checkSquare(nextState, layer, row, column-1, turn) or
+                                checkSquare(nextState, layer, row-1, column-1, turn) or
+                                checkSquare(nextState, layer, row -1, column, turn)):
+                                remove(allRemove(nextState, turn), move)
+                            else:
+                                moves.append(move)
+                                pass
                         else:
-                            moves.append(move)
+                            mvs.append(move)
     return mvs
 
 def feelTheMagic(st, layer, row, column):
@@ -76,7 +77,9 @@ def allMoves(turn):
                 'cost': 0
             }
             nextState = applyAction(move, turn)
-
+            layer = mv['to'][0]
+            row =  mv['to'][1]
+            column =  mv['to'][2]
             if (checkSquare(nextState, layer, row, column, turn) or
                 checkSquare(nextState, layer, row, column-1, turn) or
                 checkSquare(nextState, layer, row-1, column-1, turn) or
@@ -91,7 +94,7 @@ def allRemove(st, turn):
         for row in range(4-layer):
             for column in range(4-layer):
                 if (
-                    state[layer][row][column] == turn and
+                    st[layer][row][column] == turn and
                     not feelThePressure(st, layer, row, column)
                 ):
                     remove.append([layer, row, column])
@@ -100,23 +103,23 @@ def allRemove(st, turn):
 def checkSquare(st, layer, row, column, turn):
     for i in range(2):
         for j in range(2):
-                if layer < 3 and 0 <= row-i < 3-layer and 0 <= column-j < 3-layer:
-                    if st[layer][row+i][column+j] != turn:
-                        return False
-                else:
+            if layer < 3 and 0 <= row+i <= 3-layer and 0 <= column+j <= 3-layer:
+                if st[layer][row+i][column+j] != turn:
                     return False
+            else:
+                return False
     return True
 
 def remove(freeMarble, move):
     for i in range(len(freeMarble)):
         for j in range(i+1,len(freeMarble)):
             move['remove'] = [freeMarble[i],freeMarble[j]]
-            print(move)
-            moves.append(move)
+            mv = copy.deepcopy(move)
+            moves.append(mv)
     for rmv in freeMarble:
-        print(move)
         move['remove'] = [rmv]
-        moves.append(move)
+        mv = copy.deepcopy(move)
+        moves.append(mv)
 
 
 def applyAction(action, turn):
@@ -132,5 +135,16 @@ def applyAction(action, turn):
 
     return nextState
 
-#allPlace(state, 1)
+def printMove(mv):
+    output = ''
+    for elem in mv:
+        if elem['move'] == 'place':
+            output = '+ ' + str(elem['to'])
+        elif elem['move'] == 'move':
+            output = str(elem['from']) + '-->' + str(elem['to'])
+        if 'remove' in elem:
+            output += ' - ' + str(elem['remove'])
+        print(output)
+allPlace(state, 1)
 allMoves(1)
+printMove(moves)
