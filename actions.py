@@ -1,5 +1,6 @@
 import json
 import copy
+from Three import Tree
 state = [[[0, 0, 0, 0],[None, 0, 0, 0],[1,0,1,1],[None,1,1,1]],[[None, 1, 1],[None,None,1],[None,None,None]],[[None,None],[None,None]],[[None]]]
 action = {'move': 'place', 'to':[0,2,1]}
 moves = []
@@ -25,7 +26,7 @@ def allPlace(st, turn, layerRes = None):
                         }
 
                         if layerRes == None:
-                            nextState = applyAction(move, turn)
+                            nextState = applyAction(st, move, turn)
                             if (checkSquare(nextState, layer, row, column, turn) or
                                 checkSquare(nextState, layer, row, column-1, turn) or
                                 checkSquare(nextState, layer, row-1, column-1, turn) or
@@ -60,15 +61,15 @@ def feelThePressure(st, layer, row, column):
 
     return feelThePressure
 
-def allMoves(turn):
-    removes = allRemove(state, turn)
+def allMoves(st, turn):
+    removes = allRemove(st, turn)
     for rmv in removes:
         layer = rmv[0]
         row = rmv[1]
         column = rmv[2]
-        st = copy.deepcopy(state)
-        st[layer][row][column] = None
-        mvs = allPlace(st, turn, layer + 1)
+        stcopy = copy.deepcopy(st)
+        stcopy[layer][row][column] = None
+        mvs = allPlace(stcopy, turn, layer + 1)
         for mv in mvs:
             move = {
                 'move': 'move',
@@ -76,7 +77,7 @@ def allMoves(turn):
                 'to': mv['to'],
                 'cost': 0
             }
-            nextState = applyAction(move, turn)
+            nextState = applyAction(st, move, turn)
             layer = mv['to'][0]
             row =  mv['to'][1]
             column =  mv['to'][2]
@@ -122,8 +123,8 @@ def remove(freeMarble, move):
         moves.append(mv)
 
 
-def applyAction(action, turn):
-    nextState = copy.deepcopy(state)
+def applyAction(st, action, turn):
+    nextState = copy.deepcopy(st)
     if action['move'] == 'place':
         to =action['to']
         nextState[to[0]][to[1]][to[2]] = turn
@@ -145,6 +146,10 @@ def printMove(mv):
         if 'remove' in elem:
             output += ' - ' + str(elem['remove'])
         print(output)
+        
 allPlace(state, 1)
-allMoves(1)
+allMoves(state, 1)
 printMove(moves)
+
+def treeMaker(parent):
+    return Tree(parent, 3)
