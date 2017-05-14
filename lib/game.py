@@ -2,11 +2,11 @@
 # Author: Sébastien Combéfis
 # Version: April 20, 2016
 
-from abc import *
 import copy
 import json
 import socket
 import sys
+from abc import *
 
 DEFAULT_BUFFER_SIZE = 1024
 SECTION_WIDTH = 60
