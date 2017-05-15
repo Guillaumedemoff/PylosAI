@@ -2,7 +2,7 @@ import json
 import copy
 from Three import Tree
 board = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
-board = [[[1, 1, None, None],[1, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
+#board = [[[1, 1, None, None],[1, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
 state = {'reserve' : [15, 15], 'turn': 1, 'board' : board}
 action = {'move': 'place', 'to':[0,2,1]}
 moves = []
@@ -140,7 +140,7 @@ def applyAction(st, action, cost = False):
         to = action['to']
         from_ =action['from']
         nextState['board'][from_[0]][from_[1]][from_[2]] = None
-        nextState[board][to[0]][to[1]][to[2]] = nextState['turn']
+        nextState['board'][to[0]][to[1]][to[2]] = nextState['turn']
 
     if cost:
         nextState['reserve'][nextState['turn']] += action['cost']
@@ -158,9 +158,9 @@ def printMove(mv):
         output += '$' + str(elem['cost'])
         print(output)
 
-moves = allPlace(state)
-allMoves(state)
-printMove(moves)
+#moves = allPlace(state)
+#allMoves(state)
+#printMove(moves)
 
 def treeMaker(st, i = None):
     mvs =[]
@@ -176,7 +176,7 @@ def treeMaker(st, i = None):
         st['turn'] = 0
     else:
         st['turn'] = 1
-    return Tree(mvs, [treeMaker(applyAction(st, mv), i) for mv in mvs ] )
+    return Tree(mvs, [treeMaker(applyAction(st, mv, True), i) for mv in mvs ] )
 
-#tree = treeMaker(state, 2)
-#print(tree)
+tree = treeMaker(state, 3)
+print(tree)
