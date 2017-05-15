@@ -143,8 +143,6 @@ def applyAction(st, action, cost = False):
         nextState[board][to[0]][to[1]][to[2]] = nextState['turn']
 
     if cost:
-        print(st['reserve'][st['turn']])
-        print(action['cost'])
         nextState['reserve'][nextState['turn']] += action['cost']
     return nextState
 
@@ -162,9 +160,7 @@ def printMove(mv):
 
 moves = allPlace(state)
 allMoves(state)
-#printMove(moves)
-print(moves[0])
-print(applyAction(state, moves[0], True))
+printMove(moves)
 
 def treeMaker(st, i = None):
     mvs =[]
