@@ -1,7 +1,7 @@
 import json
 import copy
 from Three import Tree
-state = [[[0, 0, 0, 0],[None, 0, 0, 0],[1,0,1,1],[None,1,1,1]],[[None, 1, 1],[None,None,1],[None,None,None]],[[None,None],[None,None]],[[None]]]
+state = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
 action = {'move': 'place', 'to':[0,2,1]}
 moves = []
 
@@ -31,9 +31,9 @@ def allPlace(st, turn, layerRes = None):
                                 checkSquare(nextState, layer, row, column-1, turn) or
                                 checkSquare(nextState, layer, row-1, column-1, turn) or
                                 checkSquare(nextState, layer, row -1, column, turn)):
-                                remove(allRemove(nextState, turn), move)
+                                mvs += remove(allRemove(nextState, turn), move)
                             else:
-                                moves.append(move)
+                                mvs.append(move)
                                 pass
                         else:
                             mvs.append(move)
@@ -62,6 +62,7 @@ def feelThePressure(st, layer, row, column):
     return feelThePressure
 
 def allMoves(st, turn):
+    mvs = []
     removes = allRemove(st, turn)
     for rmv in removes:
         layer = rmv[0]
@@ -69,8 +70,9 @@ def allMoves(st, turn):
         column = rmv[2]
         stcopy = copy.deepcopy(st)
         stcopy[layer][row][column] = None
-        mvs = allPlace(stcopy, turn, layer + 1)
-        for mv in mvs:
+        movs = allPlace(stcopy, turn, layer + 1)
+        for mv in movs:
+
             move = {
                 'move': 'move',
                 'from': [layer, row, column],
@@ -85,9 +87,10 @@ def allMoves(st, turn):
                 checkSquare(nextState, layer, row, column-1, turn) or
                 checkSquare(nextState, layer, row-1, column-1, turn) or
                 checkSquare(nextState, layer, row -1, column, turn)):
-                remove(allRemove(nextState, turn), move)
+                mvs += remove(allRemove(nextState, turn), move)
             else:
-                moves.append(move)
+                mvs.append(move)
+    return mvs
 
 def allRemove(st, turn):
     remove = []
@@ -112,16 +115,17 @@ def checkSquare(st, layer, row, column, turn):
     return True
 
 def remove(freeMarble, move):
+    mvs = []
     for i in range(len(freeMarble)):
         for j in range(i+1,len(freeMarble)):
             move['remove'] = [freeMarble[i],freeMarble[j]]
             mv = copy.deepcopy(move)
-            moves.append(mv)
+            mvs.append(mv)
     for rmv in freeMarble:
         move['remove'] = [rmv]
         mv = copy.deepcopy(move)
-        moves.append(mv)
-
+        mvs.append(mv)
+    return mvs
 
 def applyAction(st, action, turn):
     nextState = copy.deepcopy(st)
@@ -146,10 +150,23 @@ def printMove(mv):
         if 'remove' in elem:
             output += ' - ' + str(elem['remove'])
         print(output)
-        
-allPlace(state, 1)
-allMoves(state, 1)
-printMove(moves)
 
-def treeMaker(parent):
-    return Tree(parent, 3)
+#moves = allPlace(state, 1)
+#allMoves(state, 1)
+#printMove(moves)
+
+def treeMaker(parent, turn, i = None):
+    if i < 1 and i != None:
+        return Tree(parent)
+    i -= 1
+    mvs =[]
+    mvs = allPlace(parent, turn)
+    mvs += allMoves(parent, turn)
+    if turn == 1:
+        turn = 0
+    else:
+        turn = 1
+    return Tree(parent, [treeMaker(applyAction(parent, mv, turn),turn, i) for mv in mvs ] )
+
+tree = treeMaker(state, 1, 2)
+print(tree)
