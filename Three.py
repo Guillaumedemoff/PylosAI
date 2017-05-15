@@ -45,8 +45,8 @@ t = Tree(11, [c1, c2, c3])
 t[0][0].addChild(Tree(8))
 
 
-#def treeMaker(n):
-#    return Tree(1, [treeMaker(n-1) for i in range(n)])
+def treeMaker(n):
+    return Tree(1, [treeMaker(n-1) for i in range(n)])
 
 #oxoTree = treeMaker(3)
 #print(oxoTree)
