@@ -1,10 +1,12 @@
 import json
 import copy
-state = [[[0, 0, 0, 0],[None, 0, 0, 0],[1,0,1,1],[None,1,1,1]],[[None, 1, 1],[None,None,1],[None,None,None]],[[None,None],[None,None]],[[None]]]
+from Three import Tree
+board = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
+state = {'reserve' : [15, 15], 'turn': 1, 'board' : board}
 action = {'move': 'place', 'to':[0,2,1]}
 moves = []
 
-def allPlace(st, turn, layerRes = None):
+def allPlace(st, layerRes = None):
     mvs = []
     if layerRes == None:
         a = 0
@@ -16,8 +18,8 @@ def allPlace(st, turn, layerRes = None):
     for layer in range(a,b):
         for row in range(4-layer):
             for column in range(4-layer):
-                if st[layer][row][column] == None:
-                    if not feelTheMagic(st, layer, row, column):
+                if st['board'][layer][row][column] == None:
+                    if not feelTheMagic(st['board'], layer, row, column):
                         move = {
                             'move': 'place',
                             'to': [layer, row, column],
@@ -25,14 +27,14 @@ def allPlace(st, turn, layerRes = None):
                         }
 
                         if layerRes == None:
-                            nextState = applyAction(move, turn)
-                            if (checkSquare(nextState, layer, row, column, turn) or
-                                checkSquare(nextState, layer, row, column-1, turn) or
-                                checkSquare(nextState, layer, row-1, column-1, turn) or
-                                checkSquare(nextState, layer, row -1, column, turn)):
-                                remove(allRemove(nextState, turn), move)
+                            nextState = applyAction(st, move)
+                            if (checkSquare(nextState, layer, row, column) or
+                                checkSquare(nextState, layer, row, column-1) or
+                                checkSquare(nextState, layer, row-1, column-1) or
+                                checkSquare(nextState, layer, row -1, column)):
+                                mvs += remove(allRemove(nextState), move)
                             else:
-                                moves.append(move)
+                                mvs.append(move)
                                 pass
                         else:
                             mvs.append(move)
@@ -60,78 +62,82 @@ def feelThePressure(st, layer, row, column):
 
     return feelThePressure
 
-def allMoves(turn):
-    removes = allRemove(state, turn)
+def allMoves(st):
+    mvs = []
+    removes = allRemove(st)
     for rmv in removes:
         layer = rmv[0]
         row = rmv[1]
         column = rmv[2]
-        st = copy.deepcopy(state)
-        st[layer][row][column] = None
-        mvs = allPlace(st, turn, layer + 1)
-        for mv in mvs:
+        stcopy = copy.deepcopy(st)
+        stcopy['board'][layer][row][column] = None
+        movs = allPlace(stcopy, layer + 1)
+        for mv in movs:
+
             move = {
                 'move': 'move',
                 'from': [layer, row, column],
                 'to': mv['to'],
                 'cost': 0
             }
-            nextState = applyAction(move, turn)
+            nextState = applyAction(st, move)
             layer = mv['to'][0]
             row =  mv['to'][1]
             column =  mv['to'][2]
-            if (checkSquare(nextState, layer, row, column, turn) or
-                checkSquare(nextState, layer, row, column-1, turn) or
-                checkSquare(nextState, layer, row-1, column-1, turn) or
-                checkSquare(nextState, layer, row -1, column, turn)):
-                remove(allRemove(nextState, turn), move)
+            if (checkSquare(nextState, layer, row, column) or
+                checkSquare(nextState, layer, row, column-1) or
+                checkSquare(nextState, layer, row-1, column-1) or
+                checkSquare(nextState, layer, row -1, column)):
+                mvs += remove(allRemove(nextState), move)
             else:
-                moves.append(move)
+                mvs.append(move)
+    return mvs
 
-def allRemove(st, turn):
+def allRemove(st):
     remove = []
     for layer in range(3):
         for row in range(4-layer):
             for column in range(4-layer):
                 if (
-                    st[layer][row][column] == turn and
-                    not feelThePressure(st, layer, row, column)
+                    st['board'][layer][row][column] == st['turn'] and
+                    not feelThePressure(st['board'], layer, row, column)
                 ):
                     remove.append([layer, row, column])
     return remove
 
-def checkSquare(st, layer, row, column, turn):
+def checkSquare(st, layer, row, column):
     for i in range(2):
         for j in range(2):
             if layer < 3 and 0 <= row+i <= 3-layer and 0 <= column+j <= 3-layer:
-                if st[layer][row+i][column+j] != turn:
+                if st['board'][layer][row+i][column+j] != st['turn']:
                     return False
             else:
                 return False
     return True
 
 def remove(freeMarble, move):
+    mvs = []
     for i in range(len(freeMarble)):
         for j in range(i+1,len(freeMarble)):
             move['remove'] = [freeMarble[i],freeMarble[j]]
             mv = copy.deepcopy(move)
-            moves.append(mv)
+            mvs.append(mv)
     for rmv in freeMarble:
         move['remove'] = [rmv]
         mv = copy.deepcopy(move)
-        moves.append(mv)
+        mvs.append(mv)
+    return mvs
 
-
-def applyAction(action, turn):
-    nextState = copy.deepcopy(state)
+def applyAction(st, action):
+    nextState = copy.deepcopy(st)
     if action['move'] == 'place':
         to =action['to']
-        nextState[to[0]][to[1]][to[2]] = turn
+        nextState['board'][to[0]][to[1]][to[2]] = nextState['turn']
     elif action['move'] == 'move':
         to = action['to']
         from_ =action['from']
-        nextState[from_[0]][from_[1]][from_[2]] = None
-        nextState[to[0]][to[1]][to[2]] = turn
+        nextState['board'][from_[0]][from_[1]][from_[2]] = None
+        nextState[board][to[0]][to[1]][to[2]] = nextState['turn']
 
     return nextState
 
@@ -145,6 +151,26 @@ def printMove(mv):
         if 'remove' in elem:
             output += ' - ' + str(elem['remove'])
         print(output)
-allPlace(state, 1)
-allMoves(1)
+
+moves = allPlace(state)
+allMoves(state)
 printMove(moves)
+
+def treeMaker(st, i = None):
+    mvs =[]
+    mvs = allPlace(st)
+    mvs += allMoves(st)
+
+    if ((i < 1 and i != None) or
+        st['reserve'][0] == 0 or
+        st['reserve'][1] == 0):
+        return Tree(mvs)
+    i -= 1
+    if st['turn'] == 1:
+        st['turn'] = 0
+    else:
+        st['turn'] = 1
+    return Tree(mvs, [treeMaker(applyAction(st, mv), i) for mv in mvs ] )
+
+#tree = treeMaker(state, 2)
+#print(tree)
