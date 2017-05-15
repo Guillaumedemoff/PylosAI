@@ -2,6 +2,7 @@ import json
 import copy
 from Three import Tree
 board = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
+board = [[[1, 1, None, None],[1, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
 state = {'reserve' : [15, 15], 'turn': 1, 'board' : board}
 action = {'move': 'place', 'to':[0,2,1]}
 moves = []
@@ -130,7 +131,7 @@ def remove(freeMarble, move):
         mvs.append(mv)
     return mvs
 
-def applyAction(st, action):
+def applyAction(st, action, cost = False):
     nextState = copy.deepcopy(st)
     if action['move'] == 'place':
         to =action['to']
@@ -140,7 +141,11 @@ def applyAction(st, action):
         from_ =action['from']
         nextState['board'][from_[0]][from_[1]][from_[2]] = None
         nextState[board][to[0]][to[1]][to[2]] = nextState['turn']
-    st['reserve'][st['turn']] += action['cost']
+
+    if cost:
+        print(st['reserve'][st['turn']])
+        print(action['cost'])
+        nextState['reserve'][nextState['turn']] += action['cost']
     return nextState
 
 def printMove(mv):
@@ -152,11 +157,14 @@ def printMove(mv):
             output = str(elem['from']) + '-->' + str(elem['to'])
         if 'remove' in elem:
             output += ' - ' + str(elem['remove'])
+        output += '$' + str(elem['cost'])
         print(output)
 
 moves = allPlace(state)
 allMoves(state)
-printMove(moves)
+#printMove(moves)
+print(moves[0])
+print(applyAction(state, moves[0], True))
 
 def treeMaker(st, i = None):
     mvs =[]
