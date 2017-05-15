@@ -120,10 +120,12 @@ def remove(freeMarble, move):
     for i in range(len(freeMarble)):
         for j in range(i+1,len(freeMarble)):
             move['remove'] = [freeMarble[i],freeMarble[j]]
+            move['cost'] = 2
             mv = copy.deepcopy(move)
             mvs.append(mv)
     for rmv in freeMarble:
         move['remove'] = [rmv]
+        move['cost'] = 1
         mv = copy.deepcopy(move)
         mvs.append(mv)
     return mvs
