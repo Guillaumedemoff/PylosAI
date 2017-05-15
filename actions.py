@@ -138,7 +138,7 @@ def applyAction(st, action):
         from_ =action['from']
         nextState['board'][from_[0]][from_[1]][from_[2]] = None
         nextState[board][to[0]][to[1]][to[2]] = nextState['turn']
-
+    st['reserve'][st['turn']] += action['cost']
     return nextState
 
 def printMove(mv):
