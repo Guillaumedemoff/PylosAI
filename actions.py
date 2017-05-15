@@ -159,7 +159,10 @@ def treeMaker(parent, turn, i = None):
     mvs =[]
     mvs = allPlace(parent, turn)
     mvs += allMoves(parent, turn)
-    if i < 1 and i != None:
+
+    if ((i < 1 and i != None) or
+        parent['reserve'][0] == 0 or
+        parent['reserve'][1] == 0):
         return Tree(mvs)
     i -= 1
     if turn == 1:
