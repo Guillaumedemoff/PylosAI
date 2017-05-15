@@ -5,6 +5,8 @@ class Tree:
     def __init__(self, value, children=[]):
         self.__value = value
         self.__children = copy.deepcopy(children)
+        self.__tree = {'parent': self.__value, 'children':[c.json for c in self.__children]}
+        
 
     def __getitem__(self, index):
         return self.__children[index]
@@ -31,7 +33,9 @@ class Tree:
         for child in self.__children:
             result += child.size
         return result
-
+    @property
+    def json(self):
+        return self.__tree
 
     def addChild(self, tree):
         self.__children.append(tree)
