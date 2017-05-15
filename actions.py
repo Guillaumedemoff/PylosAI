@@ -156,17 +156,17 @@ def printMove(mv):
 #printMove(moves)
 
 def treeMaker(parent, turn, i = None):
-    if i < 1 and i != None:
-        return Tree(parent)
-    i -= 1
     mvs =[]
     mvs = allPlace(parent, turn)
     mvs += allMoves(parent, turn)
+    if i < 1 and i != None:
+        return Tree(mvs)
+    i -= 1
     if turn == 1:
         turn = 0
     else:
         turn = 1
-    return Tree(parent, [treeMaker(applyAction(parent, mv, turn),turn, i) for mv in mvs ] )
+    return Tree(mvs, [treeMaker(applyAction(parent, mv, turn),turn, i) for mv in mvs ] )
 
 tree = treeMaker(state, 1, 2)
 print(tree)
