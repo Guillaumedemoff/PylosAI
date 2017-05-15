@@ -1,7 +1,8 @@
 import json
 import copy
 from Three import Tree
-state = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
+board = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
+state = {'reserve' : [15, 15], 'turn': 1, 'board' : board}
 action = {'move': 'place', 'to':[0,2,1]}
 moves = []
 
@@ -155,21 +156,21 @@ def printMove(mv):
 #allMoves(state, 1)
 #printMove(moves)
 
-def treeMaker(parent, turn, i = None):
+def treeMaker(st, turn, i = None):
     mvs =[]
     mvs = allPlace(parent, turn)
     mvs += allMoves(parent, turn)
 
     if ((i < 1 and i != None) or
-        parent['reserve'][0] == 0 or
-        parent['reserve'][1] == 0):
+        st['reserve'][0] == 0 or
+        st['reserve'][1] == 0):
         return Tree(mvs)
     i -= 1
-    if turn == 1:
-        turn = 0
+    if st['turn'] == 1:
+        st['turn'] = 0
     else:
-        turn = 1
-    return Tree(mvs, [treeMaker(applyAction(parent, mv, turn),turn, i) for mv in mvs ] )
+        st['turn'] = 1
+    return Tree(mvs, [treeMaker(applyAction(st, mv, turn), i) for mv in mvs ] )
 
 tree = treeMaker(state, 1, 2)
 print(tree)
