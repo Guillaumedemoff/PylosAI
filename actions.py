@@ -1,9 +1,9 @@
 import json
 import copy
 from Three import Tree
-board = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
+board = [[[None, 1, None, None],[1, 1, 0, None],[1,0,0,None],[1,None,None,None]],[[None, None, None],[0,1,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
 #board = [[[1, 1, None, None],[1, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
-state = {'reserve' : [15, 15], 'turn': 1, 'board' : board}
+state = {'reserve' : [10, 10], 'turn': 0, 'board' : board}
 action = {'move': 'place', 'to':[0,2,1]}
 moves = []
 
@@ -159,7 +159,9 @@ class Movement():
             output += '$' + str(elem['cost'])
             print(output)
 
-    def treeMaker(self, st, i = None):
+    def treeMaker(self, st, action = None, i = None):
+        delta  = 0
+        children = []
         mvs =[]
         mvs = self.allPlace(st)
         mvs += self.allMoves(st)
@@ -167,14 +169,29 @@ class Movement():
         if ((i < 1 and i != None) or
             st['reserve'][0] == 0 or
             st['reserve'][1] == 0):
-            return Tree(mvs)
+            delta = st['reserve'][0]-st['reserve'][1]
+            st['manu'] = 'fuck you'
+            return Tree(delta, action)
+#        print(st)
         i -= 1
         if st['turn'] == 1:
             st['turn'] = 0
         else:
             st['turn'] = 1
-        return Tree(mvs, [self.treeMaker(self.applyAction(st, mv, True), i) for mv in mvs ] )
+        for mv in mvs:
+            child = self.treeMaker(self.applyAction(st, mv, True), mv, i)
+            children.append(child)
+        if st['turn'] == 1:
+            val = min(children).value
+        else:
+            val = max(children).value
+        st['manu'] = 'cool'
+        return Tree(val, action, children )
 
+
+    
 MV = Movement()
-tree = MV.treeMaker(state, 4)
+tree = MV.treeMaker(state, i=3)
 print(tree)
+
+

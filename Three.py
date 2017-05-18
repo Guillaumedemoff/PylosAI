@@ -2,9 +2,10 @@ import copy
 
 
 class Tree:
-    def __init__(self, value, children=[]):
+    def __init__(self, value, action =None, children=[]):
         self.__value = value
         self.__children = copy.deepcopy(children)
+        self.action = copy.deepcopy(action)
         self.__tree = {'parent': self.__value, 'children':[c.json for c in self.__children]}
         
 
@@ -13,12 +14,30 @@ class Tree:
 
     def __str__(self):
         def _str(tree, level):
-            result = '[{}]\n'.format(tree.__value)
+            result = '[{}] A{}\n'.format(tree.__value, tree.action)
             for child in tree.children:
                 result += '{}|--{}'.format('    '*level, _str(child, level + 1))
             return result
         return _str(self, 0)
+    
+    def __lt__(self, other):
+        return self.value < other.value
 
+    def ___le__(self, other):
+        return self.value <= other.value
+
+    def __eq__(self, other):
+        return self.value == other.value
+
+    def __ne__(self, other):
+        return self.value != other.value
+
+    def __gt__(self, other):
+        return self.value > other.value
+
+    def __ge__(self, other):
+        return self.value >= other.value
+    
     @property
     def value(self):
         return self.__value
@@ -41,12 +60,13 @@ class Tree:
         self.__children.append(tree)
 
 
+
+
 c1 = Tree(25, [Tree(-9)])
 c2 = Tree(12)
 c3 = Tree(14)
 
-t = Tree(11, [c1, c2, c3])
-t[0][0].addChild(Tree(8))
+
 
 
 def treeMaker(n):
