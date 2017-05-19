@@ -3,10 +3,13 @@ import copy
 from Three import Tree
 #This package realy shouldn't be in a AI code. Shame on me
 import random
+
 board = [[[1, 0, 1, 0], [None, 1, None, 1], [1, 1, 0, None], [0, None, 0, 0]], [[None, None, None], [None, None, None], [None, None, None]],[[None, None], [None, None]], [[None]]]
 #board = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
 
 state = {'reserve' : [9, 9], 'turn': 1, 'board' : board}
+
+
 #action = {'move': 'place', 'to':[0,2,1]}
 moves = []
 
@@ -28,8 +31,7 @@ class Movement():
                         if not self.feelTheMagic(st['board'], layer, row, column):
                             move = {
                                 'move': 'place',
-                                'to': [layer, row, column],
-                                'cost': -1
+                                'to': [layer, row, column]
                             }
 
                             if layerRes == None:
@@ -82,8 +84,7 @@ class Movement():
                 move = {
                     'move': 'move',
                     'from': [layer, row, column],
-                    'to': mv['to'],
-                    'cost': 0
+                    'to': mv['to']
                 }
                 nextState = self.applyAction(st, move)
                 l = mv['to'][0]
@@ -125,12 +126,10 @@ class Movement():
         for i in range(len(freeMarble)):
             for j in range(i+1,len(freeMarble)):
                 move['remove'] = [freeMarble[i],freeMarble[j]]
-                move['cost'] = 2
                 mv = copy.deepcopy(move)
                 mvs.append(mv)
         for rmv in freeMarble:
             move['remove'] = [rmv]
-            move['cost'] = 1
             mv = copy.deepcopy(move)
             mvs.append(mv)
         return mvs
@@ -151,7 +150,14 @@ class Movement():
                 nextState['board'][rem[0]][rem[1]][rem[2]] = None
 
         if cost:
-            nextState['reserve'][nextState['turn']] += action['cost']
+            cst = 0
+            if action['move'] == 'place':
+                cst = -1
+            elif action['move'] == 'move':
+                cst = 0
+            if 'remove' in action:
+                cst += len (action['remove'])
+            nextState['reserve'][nextState['turn']] += cst
         return nextState
 
     def printMove(self, mv):
@@ -163,7 +169,6 @@ class Movement():
                 output = str(elem['from']) + '-->' + str(elem['to'])
             if 'remove' in elem:
                 output += ' - ' + str(elem['remove'])
-            output += '$' + str(elem['cost'])
             print(output)
 
     def treeMaker(self, st, action = None, i = None, nbrParents = 1):
@@ -199,8 +204,8 @@ class Movement():
             val = max(children).value
             mM  = "Max"
         return Tree(val, action , children)
+
 MV = Movement()
-#print(MV.treeMaker(state, i=600))
 
 while True:
 
@@ -208,7 +213,7 @@ while True:
     bestChoice = [i for i, x in enumerate(tree.childrenVal) if x == tree.value]
     nextMove = tree.children[random.choice(bestChoice)].action
     state = MV.applyAction(state, nextMove, True)
-    print(nextMove)
+    MV.printMove([nextMove])
     print(state)
     if state['turn'] == 1:
         state['turn'] = 0
