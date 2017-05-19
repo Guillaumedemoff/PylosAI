@@ -1,13 +1,17 @@
 import json
 import copy
 from Three import Tree
-board = [[[None, 1, None, None],[1, 1, 0, None],[1,0,0,None],[1,None,None,None]],[[None, None, None],[0,1,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
-#board = [[[1, 1, None, None],[1, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
-state = {'reserve' : [10, 10], 'turn': 0, 'board' : board}
-action = {'move': 'place', 'to':[0,2,1]}
+#This package realy shouldn't be in a AI code. Shame on me
+import random
+board = [[[1, None, 1, 0], [None, 1, 0, 0], [0, 1, 1, 0], [None, None, None, None]], [[None, None, None], [None, None, None], [None, None, None]],[[None, None], [None, None]], [[None]]]
+#board = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
+
+state = {'reserve' : [15, 15], 'turn': 1, 'board' : board}
+#action = {'move': 'place', 'to':[0,2,1]}
 moves = []
 
 class Movement():
+
     def allPlace(self, st, layerRes = None):
         mvs = []
         if layerRes == None:
@@ -75,7 +79,6 @@ class Movement():
             stcopy['board'][layer][row][column] = None
             movs = self.allPlace(stcopy, layer + 1)
             for mv in movs:
-
                 move = {
                     'move': 'move',
                     'from': [layer, row, column],
@@ -83,13 +86,13 @@ class Movement():
                     'cost': 0
                 }
                 nextState = self.applyAction(st, move)
-                layer = mv['to'][0]
-                row =  mv['to'][1]
-                column =  mv['to'][2]
-                if (self.checkSquare(nextState, layer, row, column) or
-                    self.checkSquare(nextState, layer, row, column-1) or
-                    self.checkSquare(nextState, layer, row-1, column-1) or
-                    self.checkSquare(nextState, layer, row -1, column)):
+                l = mv['to'][0]
+                r =  mv['to'][1]
+                c =  mv['to'][2]
+                if (self.checkSquare(nextState, l, r, c) or
+                    self.checkSquare(nextState, l, r, c-1) or
+                    self.checkSquare(nextState, l, r-1, c-1) or
+                    self.checkSquare(nextState, l, r -1, c)):
                     mvs += self.remove(self.allRemove(nextState), move)
                 else:
                     mvs.append(move)
@@ -143,6 +146,10 @@ class Movement():
             nextState['board'][from_[0]][from_[1]][from_[2]] = None
             nextState['board'][to[0]][to[1]][to[2]] = nextState['turn']
 
+        if 'remove' in action:
+            for rem in action['remove']:
+                nextState['board'][rem[0]][rem[1]][rem[2]] = None
+
         if cost:
             nextState['reserve'][nextState['turn']] += action['cost']
         return nextState
@@ -163,6 +170,11 @@ class Movement():
         delta  = 0
         children = []
         mvs =[]
+        if st['turn'] == 1:
+            st['turn'] = 0
+        else:
+            st['turn'] = 1
+
         mvs = self.allPlace(st)
         mvs += self.allMoves(st)
 
@@ -170,28 +182,37 @@ class Movement():
             st['reserve'][0] == 0 or
             st['reserve'][1] == 0):
             delta = st['reserve'][0]-st['reserve'][1]
-            st['manu'] = 'fuck you'
             return Tree(delta, action)
 #        print(st)
         i -= 1
-        if st['turn'] == 1:
-            st['turn'] = 0
-        else:
-            st['turn'] = 1
+
         for mv in mvs:
             child = self.treeMaker(self.applyAction(st, mv, True), mv, i)
             children.append(child)
         if st['turn'] == 1:
             val = min(children).value
+            mM  = "Min"
         else:
             val = max(children).value
-        st['manu'] = 'cool'
-        return Tree(val, action, children )
-
-
-    
+            mM  = "Max"
+        return Tree(val, action , children)
 MV = Movement()
-tree = MV.treeMaker(state, i=3)
-print(tree)
+a = MV.allMoves(state)
+MV.printMove(a)
+while False:
 
+    tree = MV.treeMaker(state, i=3)
+    bestChoice = [i for i, x in enumerate(tree.childrenVal) if x == tree.value]
+    nextMove = tree.children[random.choice(bestChoice)].action
+    state = MV.applyAction(state, nextMove, True)
+    print(nextMove)
+    print(state)
+    if state['turn'] == 1:
+        state['turn'] = 0
+    else:
+        state['turn'] = 1
 
+    move = input("movement?")
+    move = json.loads(move)
+    state = MV.applyAction(state, move, True)
+    print(state)
