@@ -1,13 +1,14 @@
 import json
 import copy
 from Three import Tree
+import argparse
 #This package realy shouldn't be in a AI code. Shame on me
 import random
 
-board = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
+board = [[[1, 0, 1, 0], [0, 1, 0, 0], [None, 1, 1, 0], [None, 0, 1, 1]], [[0, 0, 1], [None, 0, 1], [None, 1, 0]], [[None, None], [None, None]], [[None]]]
 #board = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
 
-state = {'reserve' : [0, 2], 'turn': 1, 'board' : board}
+state = {'reserve' : [4, 5], 'turn': 1, 'board' : board}
 
 
 #action = {'move': 'place', 'to':[0,2,1]}
@@ -202,14 +203,27 @@ class Movement():
         return Tree(val, action , children)
 
 MV = Movement()
-print(MV.treeMaker(state, i=3))
 
-while False:
 
-    tree = MV.treeMaker(state, i=10)
+while True:
+    mvs = []
+    mvs = MV.allPlace(state)
+    mvs += MV.allMoves(state)
+    print(len(mvs))
+    if len(mvs) < 3:
+
+        itr = 6
+    elif len(mvs) <= 5:
+        itr = 5
+    elif len(mvs) <= 6:
+        itr = 4
+    else:
+        itr = 3
+    tree = MV.treeMaker(state, i=itr)
     bestChoice = [i for i, x in enumerate(tree.childrenVal) if x == tree.value]
     nextMove = tree.children[random.choice(bestChoice)].action
     state = MV.applyAction(state, nextMove, True)
+    print(len(mvs), itr)
     MV.printMove([nextMove])
     print(state)
     if state['turn'] == 1:
@@ -217,7 +231,29 @@ while False:
     else:
         state['turn'] = 1
 
-    move = input("movement?")
-    move = json.loads(move)
+    parser = argparse.ArgumentParser(description='Pylos Game')
+    parser.add_argument('--place', help='place ball')
+    parser.add_argument('--frm', help='move ball from')
+    parser.add_argument('--to', help='move ball to')
+    parser.add_argument('--rem1', help='remove ball 1')
+    parser.add_argument('--rem2', help='remove ball 2')
+    s = input('coup')
+    args = parser.parse_args(s.split(' '))
+
+
+    move = {}
+    if args.place is not None :
+        move['move'] = 'place'
+        move['to'] = [int(x) for x in args.place]
+    elif args.frm is not None and args.to is not None:
+         move['move'] = 'move'
+         move['from'] = [int(x) for x in args.frm]
+         move['to'] = [int(x) for x in args.to]
+    if args.rem1 is not None:
+        if args.rem2 is not None:
+            move['remove'] = [[int(x) for x in args.rem1], [int(x) for x in args.rem2]]
+        else:
+            move['remove'] = [[int(x) for x in args.rem1]]
+
     state = MV.applyAction(state, move, True)
     print(state)
