@@ -8,8 +8,7 @@ import argparse
 import socket
 import sys
 import json
-import random #This package realy shouldn't be in a AI code. Shame on me
-from actions import Movement
+
 from lib import game
 
 class PylosState(game.GameState):
@@ -35,10 +34,10 @@ class PylosState(game.GameState):
             }
 
         super().__init__(initialstate)
+
     @property
     def st(self):
         return self._state['visible']
-
     def get(self, layer, row, column):
         if layer < 0 or row < 0 or column < 0:
             raise game.InvalidMoveException('The position ({}) is outside of the board'.format([layer, row, column]))
@@ -230,17 +229,14 @@ class PylosClient(game.GameClient):
 
         return it in JSON
         '''
-        st = state.st
-        if st['turn'] == 1:
-            st['turn'] = 0
-        else:
-            st['turn'] = 1
-        MV = Movement()
-        tree = MV.treeMaker(st, i=3)
-        bestChoice = [i for i, x in enumerate(tree.childrenVal) if x == tree.value]
-        nextMove = tree.children[random.choice(bestChoice)].action
-
-        return json.dumps(nextMove)
+        for layer in range(4):
+            for row in range(4-layer):
+                for column in range(4-layer):
+                    if state.get(layer, row, column) == None:
+                        return json.dumps({
+                            'move': 'place',
+                            'to': [layer, row, column]
+                        })
 
 
 if __name__ == '__main__':
