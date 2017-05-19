@@ -3,10 +3,10 @@ import copy
 from Three import Tree
 #This package realy shouldn't be in a AI code. Shame on me
 import random
-board = [[[1, None, 1, 0], [None, 1, 0, 0], [0, 1, 1, 0], [None, None, None, None]], [[None, None, None], [None, None, None], [None, None, None]],[[None, None], [None, None]], [[None]]]
+board = [[[1, 0, 1, 0], [None, 1, None, 1], [1, 1, 0, None], [0, None, 0, 0]], [[None, None, None], [None, None, None], [None, None, None]],[[None, None], [None, None]], [[None]]]
 #board = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
 
-state = {'reserve' : [15, 15], 'turn': 1, 'board' : board}
+state = {'reserve' : [9, 9], 'turn': 1, 'board' : board}
 #action = {'move': 'place', 'to':[0,2,1]}
 moves = []
 
@@ -166,7 +166,7 @@ class Movement():
             output += '$' + str(elem['cost'])
             print(output)
 
-    def treeMaker(self, st, action = None, i = None):
+    def treeMaker(self, st, action = None, i = None, nbrParents = 1):
         delta  = 0
         children = []
         mvs =[]
@@ -183,11 +183,14 @@ class Movement():
             st['reserve'][1] == 0):
             delta = st['reserve'][0]-st['reserve'][1]
             return Tree(delta, action)
-#        print(st)
-        i -= 1
+
+
+        i -= nbrParents*len(mvs)
+        nbrParents = len(mvs)
+
 
         for mv in mvs:
-            child = self.treeMaker(self.applyAction(st, mv, True), mv, i)
+            child = self.treeMaker(self.applyAction(st, mv, True), mv, i, nbrParents)
             children.append(child)
         if st['turn'] == 1:
             val = min(children).value
@@ -197,11 +200,11 @@ class Movement():
             mM  = "Max"
         return Tree(val, action , children)
 MV = Movement()
-a = MV.allMoves(state)
-MV.printMove(a)
-while False:
+#print(MV.treeMaker(state, i=600))
 
-    tree = MV.treeMaker(state, i=3)
+while True:
+
+    tree = MV.treeMaker(state, i=600)
     bestChoice = [i for i, x in enumerate(tree.childrenVal) if x == tree.value]
     nextMove = tree.children[random.choice(bestChoice)].action
     state = MV.applyAction(state, nextMove, True)
