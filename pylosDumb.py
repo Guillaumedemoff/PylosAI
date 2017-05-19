@@ -35,9 +35,6 @@ class PylosState(game.GameState):
 
         super().__init__(initialstate)
 
-    @property
-    def st(self):
-        return self._state['visible']
     def get(self, layer, row, column):
         if layer < 0 or row < 0 or column < 0:
             raise game.InvalidMoveException('The position ({}) is outside of the board'.format([layer, row, column]))
