@@ -4,10 +4,10 @@ from Three import Tree
 #This package realy shouldn't be in a AI code. Shame on me
 import random
 
-board = [[[1, 0, 1, 0], [None, 1, None, 1], [1, 1, 0, None], [0, None, 0, 0]], [[None, None, None], [None, None, None], [None, None, None]],[[None, None], [None, None]], [[None]]]
+board = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
 #board = [[[None, None, None, None],[None, None, None, None],[None,None,None,None],[None,None,None,None]],[[None, None, None],[None,None,None],[None,None,None]],[[None,None],[None,None]],[[None]]]
 
-state = {'reserve' : [9, 9], 'turn': 1, 'board' : board}
+state = {'reserve' : [0, 2], 'turn': 1, 'board' : board}
 
 
 #action = {'move': 'place', 'to':[0,2,1]}
@@ -171,7 +171,7 @@ class Movement():
                 output += ' - ' + str(elem['remove'])
             print(output)
 
-    def treeMaker(self, st, action = None, i = None, nbrParents = 1):
+    def treeMaker(self, st, action = None, i = None):
         delta  = 0
         children = []
         mvs =[]
@@ -189,13 +189,9 @@ class Movement():
             delta = st['reserve'][0]-st['reserve'][1]
             return Tree(delta, action)
 
-
-        i -= nbrParents*len(mvs)
-        nbrParents = len(mvs)
-
-
+        i -= 1
         for mv in mvs:
-            child = self.treeMaker(self.applyAction(st, mv, True), mv, i, nbrParents)
+            child = self.treeMaker(self.applyAction(st, mv, True), mv, i)
             children.append(child)
         if st['turn'] == 1:
             val = min(children).value
@@ -206,10 +202,11 @@ class Movement():
         return Tree(val, action , children)
 
 MV = Movement()
+print(MV.treeMaker(state, i=3))
 
-while True:
+while False:
 
-    tree = MV.treeMaker(state, i=600)
+    tree = MV.treeMaker(state, i=10)
     bestChoice = [i for i, x in enumerate(tree.childrenVal) if x == tree.value]
     nextMove = tree.children[random.choice(bestChoice)].action
     state = MV.applyAction(state, nextMove, True)
