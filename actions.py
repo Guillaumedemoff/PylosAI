@@ -18,6 +18,8 @@ class Movement():
 
     def allPlace(self, st, layerRes = None):
         mvs = []
+
+
         if layerRes == None:
             a = 0
             b = 4
@@ -37,6 +39,7 @@ class Movement():
 
                             if layerRes == None:
                                 nextState = self.applyAction(st, move)
+
                                 if (self.checkSquare(nextState, layer, row, column) or
                                     self.checkSquare(nextState, layer, row, column-1) or
                                     self.checkSquare(nextState, layer, row-1, column-1) or
@@ -62,6 +65,7 @@ class Movement():
 
 
     def feelThePressure(self, st, layer, row, column):
+    
         feelThePressure = False
         for i in range(2):
             for j in range(2):
@@ -221,6 +225,15 @@ while True:
         itr = 3
     tree = MV.treeMaker(state, i=itr)
     bestChoice = [i for i, x in enumerate(tree.childrenVal) if x == tree.value]
+    print(bestChoice)
+    if len(bestChoice) > 1:
+        bst = []
+        for choice in bestChoice:
+            nextMove = tree.children[choice].action
+            nstate = MV.applyAction(state, nextMove)
+            tr = MV.treeMaker(nstate,i=5)
+            bst.append((choice, tr.value))
+        bestChoice = [x[0] for i,  x in enumerate(bst) if x[1] == max(bst, key = lambda x: x[1])[1]]
     nextMove = tree.children[random.choice(bestChoice)].action
     state = MV.applyAction(state, nextMove, True)
     print(len(mvs), itr)
