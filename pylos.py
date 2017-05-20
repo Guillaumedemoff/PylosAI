@@ -249,9 +249,6 @@ class PylosHuman(game.GameClient):
         super().__init__(server, PylosState, verbose=verbose)
         self.__name = name
 
-        #create parser for human play
-
-
     def _handle(self, message):
         pass
 
@@ -260,6 +257,7 @@ class PylosHuman(game.GameClient):
         valid = False
 
         while not valid:
+            #create parser for human play
             parser = argparse.ArgumentParser(description='Pylos Game')
             parser.add_argument('--place', help='place ball')
             parser.add_argument('--frm', help='move ball from')
@@ -274,7 +272,6 @@ class PylosHuman(game.GameClient):
             except:
                 print("commande non valide")
             else:
-                print("qdfsqhulqdsiufqsudfiusydfoiu")
                 move = {}
                 if args.place is not None :
                     place = [int(x) for x in args.place]
@@ -338,7 +335,7 @@ if __name__ == '__main__':
     client_parser.add_argument('--host', help='hostname of the server (default: localhost)', default='localhost')
     client_parser.add_argument('--port', help='port of the server (default: 5000)', default=5000)
     client_parser.add_argument('--verbose', action='store_true')
-    # Create the parser for the 'client' subcommand
+    # Create the parser for the 'human' subcommand
     client_parser = subparsers.add_parser('human', help='launch a human client')
     client_parser.add_argument('name', help='name of the player')
     client_parser.add_argument('--host', help='hostname of the server (default: localhost)', default='localhost')
