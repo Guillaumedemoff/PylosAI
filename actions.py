@@ -250,10 +250,18 @@ while False:
     print(bestChoice)
     if len(bestChoice) > 1:
         bst = []
+
+        if bestChoice <= 5:
+            depth = 5
+
+        elif bestChoice <= 7:
+            depth = 4
+        else:
+            depth =1
         for choice in bestChoice:
             nextMove = tree.children[choice].action
             nstate = MV.applyAction(state, nextMove)
-            tr = MV.treeMaker(nstate,i=5)
+            tr = MV.treeMaker(nstate,i=depth)
             bst.append((choice, tr.value))
         bestChoice = [x[0] for i,  x in enumerate(bst) if x[1] == max(bst, key = lambda x: x[1])[1]]
     nextMove = tree.children[random.choice(bestChoice)].action

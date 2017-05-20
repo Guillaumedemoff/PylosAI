@@ -236,89 +236,45 @@ class PylosClient(game.GameClient):
         else:
             st['turn'] = 1
         MV = Movement()
-        tree = MV.treeMaker(st, i=3)
+        mvs = []
+        mvs = MV.allPlace(state)
+        mvs += MV.allMoves(state)
+
+        #change depth according to number of child from initial state
+        if len(mvs) < 3:
+            itr = 6
+        elif len(mvs) <= 5:
+            itr = 5
+        elif len(mvs) <= 6:
+            itr = 4
+        else:
+            itr = 3
+
+        tree = MV.treeMaker(state, i=3)
+
         bestChoice = [i for i, x in enumerate(tree.childrenVal) if x == tree.value]
+        print(bestChoice)
+        if len(bestChoice) > 1:
+            bst = []
+
+            if bestChoice <= 5:
+                depth = 5
+
+            elif bestChoice <= 7:
+                depth = 4
+            else:
+                depth =1
+
+            for choice in bestChoice:
+                nextMove = tree.children[choice].action
+                nstate = MV.applyAction(state, nextMove)
+                tr = MV.treeMaker(nstate,i=depth)
+                bst.append((choice, tr.value))
+            bestChoice = [x[0] for i,  x in enumerate(bst) if x[1] == max(bst, key = lambda x: x[1])[1]]
         nextMove = tree.children[random.choice(bestChoice)].action
 
         return json.dumps(nextMove)
 
-
-class PylosHuman(game.GameClient):
-    '''represent a human player for Pylos Game'''
-    def __init__(self, name, server, verbose=False):
-        super().__init__(server, PylosState, verbose=verbose)
-        self.__name = name
-
-    def _handle(self, message):
-        pass
-
-    def _nextmove(self, state):
-
-        valid = False
-
-        while not valid:
-            #create parser for human play
-            parser = argparse.ArgumentParser(description='Pylos Game')
-            parser.add_argument('--place', help='place ball')
-            parser.add_argument('--frm', help='move ball from')
-            parser.add_argument('--to', help='move ball to')
-            parser.add_argument('--rem1', help='remove ball 1')
-            parser.add_argument('--rem2', help='remove ball 2')
-
-            s = input('inscriver votre mouvement')
-
-            try:
-                args = parser.parse_args(s.split(' '))
-            except:
-                print("commande non valide")
-            else:
-                move = {}
-                if args.place is not None :
-                    place = [int(x) for x in args.place]
-                    try:
-                        state.validPosition(place[0], place[1], place[2])
-                    except Exception as e:
-                        print("1",e)
-                    else:
-                        valid = True
-                        move['move'] = 'place'
-                        move['to'] = place
-
-                elif args.frm is not None and args.to is not None:
-                    frm = [int(x) for x in args.frm]
-                    to = [int(x) for x in args.to]
-                    try:
-                        state.validPosition(to[0], to[1], to[2])
-                        state.canMove(frm[0], frm[1], frm[2])
-                    except Exception as e:
-                        print('2',e)
-                    else:
-                        valid = True
-                        move['move'] = 'move'
-                        move['from'] = frm
-                        move['to'] = to
-
-                if args.rem1 is not None:
-                    rem1 = [int(x) for x in args.rem1]
-                    try:
-                        state.canMove(rem1[0], rem1[1], rem1[2])
-                    except Exception as e:
-                        valid = False
-                        print('3',e)
-                    else:
-                        if args.rem2 is not None:
-                            rem2 = [int(x) for x in args.rem2]
-                            try:
-                                state.canMove(rem2[0], rem2[1], rem2[2])
-                            except Exception as e:
-                                valid = False
-                                print('4',e)
-                            else:
-
-                                move['remove'] = [rem1, rem2]
-                        else:
-                                move['remove'] = [rem1]
-        return json.dumps(move)
 
 if __name__ == '__main__':
     # Create the top-level parser
@@ -332,20 +288,12 @@ if __name__ == '__main__':
     # Create the parser for the 'client' subcommand
     client_parser = subparsers.add_parser('client', help='launch a client')
     client_parser.add_argument('name', help='name of the player')
-    client_parser.add_argument('--host', help='hostname of the server (default: localhost)', default='localhost')
-    client_parser.add_argument('--port', help='port of the server (default: 5000)', default=5000)
-    client_parser.add_argument('--verbose', action='store_true')
-    # Create the parser for the 'human' subcommand
-    client_parser = subparsers.add_parser('human', help='launch a human client')
-    client_parser.add_argument('name', help='name of the player')
-    client_parser.add_argument('--host', help='hostname of the server (default: localhost)', default='localhost')
+    client_parser.add_argument('--host', help='hostname of the server (default: localhost)', default='127.0.0.1')
     client_parser.add_argument('--port', help='port of the server (default: 5000)', default=5000)
     client_parser.add_argument('--verbose', action='store_true')
     # Parse the arguments of sys.args
     args = parser.parse_args()
     if args.component == 'server':
         PylosServer(verbose=args.verbose).run()
-    elif args.component == 'client':
+    else:
         PylosClient(args.name, (args.host, args.port), verbose=args.verbose)
-    elif args.component == 'human':
-        PylosHuman(args.name, (args.host, args.port), verbose=args.verbose)
