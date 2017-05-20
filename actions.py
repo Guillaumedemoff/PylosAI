@@ -13,7 +13,7 @@ state = {'reserve' : [0, 2], 'turn': 1, 'board' : board}
 moves = []
 
 class Movement():
-'''Respresent possible Movements for a state of Pylos game'''
+    '''Respresent possible Movements for a state of Pylos game'''
     def allPlace(self, st, layerRes = None):
         '''return possible placements of ball for a given state'''
         mvs = []
@@ -52,7 +52,7 @@ class Movement():
         return mvs
 
     def feelTheMagic(self, st, layer, row, column):
-    '''return true if the specifeid ball float in the air'''
+        '''return true if the specifeid ball float in the air'''
         feelTheMagic = False
         for i in range(2):
             for j in range(2):
@@ -64,7 +64,7 @@ class Movement():
 
 
     def feelThePressure(self, st, layer, row, column):
-    '''return true is the specified ball can't be remove'''
+        '''return true is the specified ball can't be remove'''
         feelThePressure = False
         for i in range(2):
             for j in range(2):
@@ -75,7 +75,7 @@ class Movement():
         return feelThePressure
 
     def allMoves(self, st):
-    '''return all possible movement of ball for a specifeid state'''
+        '''return all possible movement of ball for a specifeid state'''
         mvs = []
         removes = self.allRemove(st)
         for rmv in removes:
@@ -106,7 +106,7 @@ class Movement():
         return mvs
 
     def allRemove(self, st):
-    '''return a all balls that can be removed for one player'''
+        '''return a all balls that can be removed for one player'''
         remove = []
         for layer in range(3):
             for row in range(4-layer):
@@ -145,7 +145,7 @@ class Movement():
         return mvs
 
     def applyAction(self, st, action, cost = False):
-    '''return a nex state after appling a movment to it'''
+        '''return a nex state after appling a movment to it'''
         nextState = copy.deepcopy(st)
         if action['move'] == 'place':
             to =action['to']
@@ -173,7 +173,7 @@ class Movement():
         return nextState
 
     def printMove(self, mv):
-    '''print movements in a nicer way'''
+        '''print movements in a nicer way'''
         output = ''
         for elem in mv:
             if elem['move'] == 'place':
@@ -185,8 +185,8 @@ class Movement():
             print(output)
 
     def treeMaker(self, st, action = None, i = None):
-    '''recursive function that return the tree of the possible states.
-        the values of the parents are given by th minMax method'''
+        '''recursive function that return the tree of the possible states.
+            the values of the parents are given by th minMax method'''
 
         delta  = 0
         children = []
@@ -225,7 +225,7 @@ class Movement():
         return Tree(val, action , children)
 
 MV = Movement()
-print(MV.treeMaker(state, i=3))
+#print(MV.treeMaker(state, i=3))
 
 while False:
 
