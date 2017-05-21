@@ -232,6 +232,236 @@ class PylosClient(game.GameClient):
         '''
         st = state.st
 
+        #tactic for first move
+        if st['reserve'][0] == 15 or st['reserve'][1]==15:
+            #first moves
+            to = random.choice([[0,1,1],[0,2,1],[0,2,1],[0,2,2]])
+            try:
+                state.validPosition(to[0], to[1], to[2])
+            except game.InvalidMoveException:
+                #if the position was't free, retry t'ill random give a valid one
+                self._nextmove(state)
+            else:
+                return json.dumps({"move" : "place", "to" : to})
+
+        #tactis for second move
+        elif st['reserve'][0] == 14 or st['reserve'][1] == 14 :
+            if st["turn"] == 0:
+                if state.get(0,1,1) == 0:
+                    for place in [[0,0,2], [0,1,2] ,[0,0,3] ,[0,1,3]]:
+                        if state.get(place[0], place[1], place[2]) == 1:
+                            to = random.choice([[0,2,0],[0,3,0],[0,3,1]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    for place in [[0,2,1], [0,2,0], [0,3,0], [0,3,1]]:
+                        if state.get(place[0], place[1], place[2]) == 1:
+                            to = random.choice([[0,0,2],[0,0,3],[0,1,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    for place in [[0,2,2], [0,2,3], [0,3,2], [0,3,3]]:
+                        if state.get(place[0], place[1], place[2]) == 1:
+                            to = random.choice([[0,2,0],[0,3,0],[0,3,1],[0,0,2],[0,0,3],[0,1,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                if state.get(0,2,1) == 0:
+                    for place in [[0,0,0], [0,1,1], [0,1,0], [0,0,1]]:
+                        if state.get(place[0], place[1], place[2]) == 1:
+                            to = random.choice([[0,2,3],[0,3,2],[0,3,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    for place in [[0,2,2], [0,2,3], [0,3,2], [0,3,3]]:
+                        if state.get(place[0], place[1], place[2]) == 1:
+                            to = random.choice([[0,0,0],[0,0,1],[0,1,0]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    for place in [[0,0,2], [0,1,2], [0,0,3], [0,1,3]]:
+                        if state.get(place[0], place[1], place[2]) == 1:
+                            to = random.choice([[0,2,3],[0,3,2],[0,3,3],[0,0,0],[0,0,1],[0,1,0]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                if state.get(0,1,2) == 0:
+                    for place in [[0,0,0], [0,1,0], [0,0,1], [0,1,1]]:
+                        if state.get(place[0], place[1], place[2]) == 1:
+                            to = random.choice([[0,2,3],[0,3,2],[0,3,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    for place in [[0,2,2], [0,2,3], [0,3,2], [0,3,3]]:
+                        if state.get(place[0], place[1], place[2]) == 1:
+                            to = random.choice([[0,0,0],[0,0,1],[0,1,0]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    for place in [[0,2,0], [0,2,1], [0,3,0], [0,3,1]]:
+                        if state.get(place[0], place[1], place[2]) == 1:
+                            to = random.choice([[0,2,3],[0,3,2],[0,3,3],[0,0,0],[0,0,1],[0,1,0]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                if state.get(0,2,2) == 0:
+                    for place in [[0,2,0], [0,2,1], [0,3,0], [0,3,1]]:
+                        if state.get(place[0], place[1], place[2]) == 1:
+                            to = random.choice([[0,0,2],[0,0,3],[0,1,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    for place in [[0,0,2], [0,1,2], [0,0,3], [0,1,3]]:
+                        if state.get(place[0], place[1], place[2]) == 1:
+                            to = random.choice([[0,2,0],[0,3,0],[0,3,1]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    for place in [[0,0,0], [0,1,0], [0,0,1], [0,1,1]]:
+                        if state.get(place[0], place[1], place[2]) == 1:
+                            to = random.choice([[0,0,2],[0,0,3],[0,1,3],[0,2,0],[0,3,0],[0,3,1]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+            else:
+                cond1 = False
+                cond2 = False
+                for place in [[0,0,0], [0,1,0], [0,0,1], [0,1,1]]:
+                    if state.get(place[0], place[1], place[2]) == 0:
+                        cond1 = True
+                if cond1:
+                    if state.get(0,1,2) == 1:
+                        for place in [[0,2,0], [0,2,1], [0,3,0], [0,3,1]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,3,2],[0,3,3],[0,2,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    if state.get(0,2,1) == 1:
+                        for place in [[0,0,2], [0,1,2], [0,0,3], [0,1,3]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,2,3],[0,3,2],[0,3,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    if state.get(0,2,2) == 1:
+                        for place in [[0,2,0], [0,2,1], [0,3,0], [0,3,1]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,0,2],[0,0,3],[0,1,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    if state.get(0,2,2) == 1:
+                        for place in [[0,0,2], [0,0,3], [0,1,2], [0,1,3]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,2,0],[0,3,0],[0,3,1]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+
+                cond1 = False
+                for place in [[0,2,0], [0,2,1], [0,3,0], [0,3,1]]:
+                    if state.get(place[0], place[1], place[2]) == 0:
+                        cond1 = True
+                if cond1:
+                    if state.get(0,1,1) == 1:
+                        for place in [[0,2,2], [0,2,3], [0,3,2], [0,3,3]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,0,2],[0,0,3],[0,1,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    if state.get(0,2,2) == 1:
+                        for place in [[0,0,0], [0,0,1], [0,1,0], [0,1,1]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,0,2],[0,0,3],[0,1,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    if state.get(0,1,2) == 1:
+                        for place in [[0,2,2], [0,2,3], [0,3,2], [0,3,3]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,0,0],[0,0,1],[0,1,0]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    if state.get(0,1,2) == 1:
+                        for place in [[0,0,0], [0,0,1], [0,1,0], [0,1,1]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,2,3],[0,3,2],[0,3,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                cond1 = False
+                for place in [[0,0,2], [0,1,2], [0,0,3], [0,1,3]]:
+                    if state.get(place[0], place[1], place[2]) == 0:
+                        cond1 = True
+                if cond1:
+                    if state.get(0,1,1) == 1:
+                        for place in [[0,2,2], [0,2,3], [0,3,2], [0,3,3]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,2,0],[0,3,0],[0,3,1]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    if state.get(0,2,2) == 1:
+                        for place in [[0,0,0], [0,0,1], [0,1,0], [0,1,1]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,2,0],[0,3,0],[0,3,1]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    if state.get(0,2,1) == 1:
+                        for place in [[0,2,2], [0,2,3], [0,3,2], [0,3,3]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,0,0],[0,0,1],[0,1,0]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    if state.get(0,2,1) == 1:
+                        for place in [[0,0,0], [0,0,1], [0,1,0], [0,1,1]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,2,3],[0,3,2],[0,3,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                cond1 = False
+                for place in [[0,2,2], [0,2,3], [0,3,2], [0,3,3]]:
+                    if state.get(place[0], place[1], place[2]) == 0:
+                        cond1 = True
+                if cond1:
+                    if state.get(0,2,1) == 1:
+                        for place in [[0,0,2], [0,1,2], [0,0,3], [0,1,3]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,0,0],[0,0,1],[0,1,0]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    if state.get(0,1,2) == 1:
+                        for place in [[0,2,0], [0,2,1], [0,3,0], [0,3,1]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,0,0],[0,0,1],[0,1,0]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    if state.get(0,1,1) == 1:
+                        for place in [[0,0,2], [0,0,3], [0,1,2], [0,1,3]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,2,0],[0,3,0],[0,3,1]])
+                            return json.dumps({"move" : "place", "to" : to})
+
+                    if state.get(0,1,1) == 1:
+                        for place in [[0,2,0], [0,3,0], [0,2,1], [0,3,1]]:
+                            if state.get(place[0], place[1], place[2]) == 0:
+                                cond2 = True
+                        if cond2:
+                            to = random.choice([[0,0,2],[0,0,3],[0,1,3]])
+                            return json.dumps({"move" : "place", "to" : to})
+
         if st['turn'] == 1:
             st['turn'] = 0
         else:
@@ -267,7 +497,6 @@ class PylosClient(game.GameClient):
                 bestChoice = [x[0] for i,  x in enumerate(bst) if x[1] == min(bst, key = lambda x: x[1])[1]]
             print("2", bestChoice)
         nextMove = tree.children[random.choice(bestChoice)].action
-
         return json.dumps(nextMove)
 
 
