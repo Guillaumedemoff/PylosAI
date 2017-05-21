@@ -231,6 +231,8 @@ class PylosClient(game.GameClient):
         return it in JSON
         '''
         st = state.st
+
+        #tactic for first move
         if st['reserve'][0] == 15 or st['reserve'][1]==15:
             #first moves
             to = random.choice([[0,1,1],[0,2,1],[0,2,1],[0,2,2]])
@@ -242,6 +244,7 @@ class PylosClient(game.GameClient):
             else:
                 return json.dumps({"move" : "place", "to" : to})
 
+        #tactis for second move
         elif st['reserve'][0] == 14 or st['reserve'][1] == 14 :
             if st["turn"] == 0:
                 if state.get(0,1,1) == 0:
