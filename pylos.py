@@ -254,15 +254,17 @@ class PylosClient(game.GameClient):
         tree = MV.treeMaker(st, i=3)
 
         bestChoice = [i for i, x in enumerate(tree.childrenVal) if x == tree.value]
-        print("1",bestChoice)
-        if len(bestChoice) > 1:
-            bst = []
+        bst = []
+        if len(bestChoice) > 1
             for choice in bestChoice:
                 nextMove = tree.children[choice].action
                 nstate = MV.applyAction(st, nextMove)
                 tr = MV.treeMaker(nstate,i=1)
                 bst.append((choice, tr.value))
-            bestChoice = [x[0] for i,  x in enumerate(bst) if x[1] == max(bst, key = lambda x: x[1])[1]]
+            if st["turn"] == 0:
+                bestChoice = [x[0] for i,  x in enumerate(bst) if x[1] == max(bst, key = lambda x: x[1])[1]]
+            else:
+                bestChoice = [x[0] for i,  x in enumerate(bst) if x[1] == min(bst, key = lambda x: x[1])[1]]
             print("2", bestChoice)
         nextMove = tree.children[random.choice(bestChoice)].action
 
