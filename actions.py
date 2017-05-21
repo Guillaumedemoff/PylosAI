@@ -223,37 +223,3 @@ class Movement():
             val = max(children).value
             mM  = "Max"
         return Tree(val, action , children)
-
-MV = Movement()
-#print(MV.treeMaker(state, i=3))
-
-while False:
-    mvs = []
-    mvs = MV.allPlace(state)
-    mvs += MV.allMoves(state)
-
-    #change depth according to number of child from initial state
-    if len(mvs) < 3:
-        itr = 6
-    elif len(mvs) <= 5:
-        itr = 5
-    elif len(mvs) <= 6:
-        itr = 4
-    else:
-        itr = 3
-
-    tree = MV.treeMaker(state, i=3)
-    bestChoice = [i for i, x in enumerate(tree.childrenVal) if x == tree.value]
-    nextMove = tree.children[random.choice(bestChoice)].action
-    state = MV.applyAction(state, nextMove, True)
-    MV.printMove([nextMove])
-    print(state)
-    if state['turn'] == 1:
-        state['turn'] = 0
-    else:
-        state['turn'] = 1
-
-    move = input("movement?")
-    move = json.loads(move)
-    state = MV.applyAction(state, move, True)
-    print(state)
