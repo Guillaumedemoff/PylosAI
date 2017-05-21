@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# actions.py
+# Authors: Guillaume de Moffarts, Christophe Simons
+
+# Version: May 21, 2017
+# -*- coding: utf-8 -*-
+
 import json
 import copy
 from Three import Tree
