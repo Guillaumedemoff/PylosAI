@@ -231,7 +231,7 @@ while False:
     mvs = []
     mvs = MV.allPlace(state)
     mvs += MV.allMoves(state)
-    
+
     #change depth according to number of child from initial state
     if len(mvs) < 3:
         itr = 6

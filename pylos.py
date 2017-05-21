@@ -485,7 +485,7 @@ class PylosClient(game.GameClient):
 
         bestChoice = [i for i, x in enumerate(tree.childrenVal) if x == tree.value]
         bst = []
-        if len(bestChoice) > 1
+        if len(bestChoice) > 1:
             for choice in bestChoice:
                 nextMove = tree.children[choice].action
                 nstate = MV.applyAction(st, nextMove)
