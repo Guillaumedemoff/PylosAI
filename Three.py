@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+# Three.py
+# Authors: Guillaume de Moffarts, Christophe Simons
+
+# Version: May 21, 2017
+# -*- coding: utf-8 -*-
 import copy
 
 
