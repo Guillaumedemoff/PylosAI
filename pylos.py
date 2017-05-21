@@ -467,8 +467,35 @@ class PylosClient(game.GameClient):
         else:
             st['turn'] = 1
         MV = Movement()
+        mvs = []
+        mvs = MV.allPlace(st)
+        mvs += MV.allMoves(st)
+
+        #change depth according to number of child from initial state
+        if len(mvs) < 3:
+            itr = 6
+        elif len(mvs) <= 5:
+            itr = 5
+        elif len(mvs) <= 6:
+            itr = 4
+        else:
+            itr = 3
+
         tree = MV.treeMaker(st, i=3)
+
         bestChoice = [i for i, x in enumerate(tree.childrenVal) if x == tree.value]
+        bst = []
+        if len(bestChoice) > 1
+            for choice in bestChoice:
+                nextMove = tree.children[choice].action
+                nstate = MV.applyAction(st, nextMove)
+                tr = MV.treeMaker(nstate,i=1)
+                bst.append((choice, tr.value))
+            if st["turn"] == 0:
+                bestChoice = [x[0] for i,  x in enumerate(bst) if x[1] == max(bst, key = lambda x: x[1])[1]]
+            else:
+                bestChoice = [x[0] for i,  x in enumerate(bst) if x[1] == min(bst, key = lambda x: x[1])[1]]
+            print("2", bestChoice)
         nextMove = tree.children[random.choice(bestChoice)].action
         return json.dumps(nextMove)
 
