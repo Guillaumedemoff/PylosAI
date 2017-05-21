@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # pylos.py
-# Author: Quentin Lurkin
+
 # Version: April 28, 2017
 # -*- coding: utf-8 -*-
 
