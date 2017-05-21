@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # pylos.py
-
-# Version: April 28, 2017
+# Authors: Guillaume de Moffarts, Christophe Simons
+# Inspier from: Q. Lurkin
+# Version: May 21, 2017
 # -*- coding: utf-8 -*-
 
 import argparse
